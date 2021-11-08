@@ -1,0 +1,112 @@
+.homolog-evaluation-configuration .btn {
+    margin-left:10px;
+}
+
+.homolog-evaluation-configuration input {
+    border:1px solid transparent;
+    cursor: pointer;
+}
+
+.homolog-evaluation-configuration input:focus {
+    border:1px solid #888;
+    cursor: text;
+}
+
+.homolog-evaluation-configuration input.section-name{
+    font-size: 1.3em;
+    font-weight: bold;
+    width: 80%;
+}
+
+.homolog-evaluation-configuration table {
+    width:100%;
+}
+.homolog-evaluation-configuration table th .btn {
+    text-align: right
+}
+
+.homolog-evaluation-configuration table input {
+    width: 100%;
+}
+
+.homolog-evaluation-configuration .criterion-title {
+    width: 60%;
+}
+
+.homolog-evaluation-configuration .criterion-num {
+    width: 10%;
+}
+
+.homolog-evaluation-configuration .criterion-num input{
+    font-weight: bold;
+    text-align: center;
+    font-size: 13px;
+}
+
+/* evaluation form */
+
+.homolog-evaluation-form table{
+    width:100%;
+    border:1px solid #bbb;
+    padding:5px;
+}
+
+.homolog-evaluation-form table th{
+    background-color: #ddd;
+}
+
+.homolog-evaluation-form table td{
+    padding:0 10px;
+    text-align: left;
+}
+
+.homolog-evaluation-form table tr td:last-of-type{
+    vertical-align: bottom;
+    text-align: right;
+    padding:0;
+}
+
+.homolog-evaluation-form table td input{
+    width:50px;
+}
+
+
+.homolog-evaluation-form table tr.subtotal {
+    background-color: #ddd;
+}
+
+.homolog-evaluation-form table tr.subtotal td{
+    padding: 5px 10px;
+    font-weight: bold;
+}
+
+.homolog-evaluation-form textarea {
+    width: 100%;
+    height:150px;
+}
+.alert-evaluation-load {
+    background: transparent;
+    border-radius: 5px;
+    padding: 2px;
+    margin-bottom: 2px;
+    text-align: center;
+    height: 25px;
+}
+
+.alert-evaluation-save {
+    background: #41ca50;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid #1d9b2b;
+    margin-bottom: 2px;
+    text-align: center;
+    height: 25px;
+}
+
+.load-evaluation-note {
+    color: transparent;
+}
+
+.success-evaluation-note {
+    color: #fff;
+}
