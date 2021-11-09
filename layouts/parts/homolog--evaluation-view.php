@@ -11,7 +11,7 @@ use MapasCulturais\i;
             </li>
         </section>
         <section class="criterion">
-            <strong><?php i::_e('Observação'); ?>:</strong> {{ evaluation.obs }}
+            <strong><?php i::_e('Justificativa/Observação'); ?>:</strong> {{ evaluation.obs }}
         </section>
         <hr>
     </div>
