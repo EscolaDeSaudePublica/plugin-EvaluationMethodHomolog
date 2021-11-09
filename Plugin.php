@@ -6,6 +6,7 @@ use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
 
+const STATUS_NOT_EVALUATE = 'notevaluate';
 const STATUS_INVALID = 'invalid';
 const STATUS_VALID = 'valid';
 
@@ -81,82 +82,131 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
     public function _init() {
         $app = App::i();
 
-        $app->hook('evaluationsReport(homolog).sections', function(Entities\Opportunity $opportunity, &$sections){
-           
-            $i = 0;
-            $get_next_color = function($last = false) use(&$i){
-                $colors = [
-                    '#FFAAAA',
-                    '#BB8888',
-                    '#FFAA66',
-                    '#AAFF00',
-                    '#AAFFAA'
-                ];
+        $app->hook('evaluationsReport(homolog).sections', function(Entities\Opportunity $opportunity, &$sections) use($app) {
+           $sections = $sections;
+        });
 
-                $result = $colors[$i];
+        $app->hook('POST(opportunity.applyEvaluationsHomolog)', function() {
+            $this->requireAuthentication();
 
-                $i++;
-
-                return $result;
-            };
-
-            $cfg = $opportunity->evaluationMethodConfiguration;
-
-            $result = [
-                'registration' => $sections['registration'],
-                'committee' => $sections['committee'],
-            ];
-            foreach($cfg->sections as $sec){
-                $section = (object) [
-                    'label' => $sec->name,
-                    'color' => $get_next_color(),
-                    'columns' => []
-                ];
-
-                foreach($cfg->criteria as $crit){
-                    if($crit->sid != $sec->id) {
-                        continue;
-                    }
-                }
-
-
-                $result[] = $section;
+            set_time_limit(0);
+            ini_set('max_execution_time', 0);
+            ini_set('memory_limit', '-1');
+    
+            $app = App::i();
+    
+            $opp = $this->requestedEntity;
+    
+            $type = $opp->evaluationMethodConfiguration->getDefinition()->slug;
+    
+            if($type != 'homolog') {
+                $this->errorJson(i::__('Somente para avaliações homologação'), 400);
+                die;
             }
 
-            $result['evaluation'] = $sections['evaluation'];
+            if (!is_numeric($this->data['to']) || !in_array($this->data['to'], [0,2,3,8,10])) {
+                $this->errorJson(i::__('os status válidos são 0, 2, 3, 8 e 10'), 400);
+                die;
+            }
+            $new_status = intval($this->data['to']);
+            
+            $apply_status = $this->data['status'] ?? false;
+            if ($apply_status == 'all') {
+                $status = 'r.status > 0';
+            } else {
+                $status = 'r.status = 1';
+            }
+    
+            $opp->checkPermission('@control');
 
-            // adiciona coluna do parecer técnico
-            $result['evaluation']->columns[] = (object) [
-                'label' => i::__('Parecer Técnico'),
-                'getValue' => function(Entities\RegistrationEvaluation $evaluation) use($crit) {
-                    return isset($evaluation->evaluationData->obs) ? $evaluation->evaluationData->obs : '';
+            // pesquise todas as registrations da opportunity que esta vindo na request
+            $query = App::i()->getEm()->createQuery("
+            SELECT 
+                r
+            FROM
+                MapasCulturais\Entities\Registration r
+            WHERE 
+                r.opportunity = :opportunity_id AND
+                r.consolidatedResult = :consolidated_result AND
+                $status
+            ");
+        
+            $params = [
+                'opportunity_id' => $opp->id,
+                'consolidated_result' => $this->data['from']
+            ];
+    
+            $query->setParameters($params);
+    
+            $registrations = $query->getResult();
+            
+            // faça um foreach em cada registration e pegue as suas avaliações
+            foreach ($registrations as $registration) {
+                $app->log->debug("Alterando status da inscrição {$registration->number} para {$new_status}");
+                switch ($new_status) {
+                    case Registration::STATUS_DRAFT:
+                        $registration->setStatusToDraft();
+                    break;
+                    case Registration::STATUS_INVALID:
+                        $registration->setStatusToInvalid();
+                    break;
+                    case Registration::STATUS_NOTAPPROVED:
+                        $registration->setStatusToNotApproved();
+                    break;
+                    case Registration::STATUS_WAITLIST:
+                        $registration->setStatusToWaitlist();
+                    break;
+                    case Registration::STATUS_APPROVED:
+                        $registration->setStatusToApproved();
+                    break;
+                    default:
+                        $registration->_setStatusTo($new_status);
+                    
                 }
-            ];
+                $app->disableAccessControl();
+                $registration->save(true);
+                $app->enableAccessControl();
+            }
 
-            $viability = [
-                'label' => i::__('Esta proposta apresenta exequibilidade?'),
-                'getValue' => function(Entities\RegistrationEvaluation $evaluation) {
-                    return $this->viabilityLabel($evaluation);
-                }
-            ];
+    
+            $this->finish(sprintf(i::__("Avaliações aplicadas à %s inscrições"), count($registrations)), 200);
+    
+        });
 
-            $result['evaluation']->columns[] = (object) $viability;
+        $app->hook('template(opportunity.single.header-inscritos):actions', function() use($app) {
+            $opportunity = $this->controller->requestedEntity;
+            
+            if ($opportunity->evaluationMethodConfiguration->getDefinition()->slug != 'homolog') {
+                return;
+            }
 
-            $sections = 'kkkkkk';
-
-            $this->viability_status = [
-                'valid' => i::__('Válido'),
-                'invalid' => i::__('Inválido')
-            ];
+            $consolidated_results = $app->em->getConnection()->fetchAll("
+                SELECT 
+                    consolidated_result evaluation,
+                    COUNT(*) as num
+                FROM 
+                    registration
+                WHERE 
+                    opportunity_id = :opportunity AND
+                    status > 0 
+                GROUP BY consolidated_result
+                ORDER BY num DESC", ['opportunity' => $opportunity->id]);
+            
+            $this->part('documentary--apply-results', ['entity' => $opportunity, 'consolidated_results' => $consolidated_results]);
         });
     }
 
     function getValidationErrors(Entities\EvaluationMethodConfiguration $evaluation_method_configuration, array $data){
         $errors = [];
         $empty = false;
+        foreach($data as $prop => $val){
+            if(is_null($val) || $val == ''){
+                $empty = true;
+            }
+        }
 
         if($empty){
-            $errors[] = i::__('Todos os campos devem ser preenchidos');
+            $errors[] = i::__('Campos de validação obrigatórios.');
         }
 
         return $errors;
@@ -202,7 +252,6 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
     }
 
     public function valueToString($value) {
-
         if($value == 1){
             return i::__('Válida');
         } else if($value == -1){
@@ -210,21 +259,9 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         }
 
         return $value ?: '';
-
     }
 
     public function fetchRegistrations() {
         return true;
     }
-
-    private function viabilityLabel($evaluation) {
-        if (isset($evaluation->evaluationData->viability)) {
-            $viability = $evaluation->evaluationData->viability;
-
-            return $this->viability_status[$viability];
-        }
-
-        return '';
-    }
-
 }

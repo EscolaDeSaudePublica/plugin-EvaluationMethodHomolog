@@ -127,10 +127,9 @@
 
     module.controller('HomologEvaluationMethodFormController', ['$scope', '$rootScope', '$timeout', 'HomologEvaluationMethodService', function ($scope, $rootScope, $timeout, HomologEvaluationMethodService) {
             var labels = MapasCulturais.gettext.homologEvaluationMethod;
-            console.log(MapasCulturais.evaluation);
             if(MapasCulturais.evaluation){
                 for(var id in MapasCulturais.evaluation.evaluationData){
-                    if(id != 'obs' && id != 'viability'){
+                    if(id != 'obs'){
                         MapasCulturais.evaluation.evaluationData[id] = MapasCulturais.evaluation.evaluationData[id];
                     }
                 }
@@ -152,7 +151,7 @@
             $timeout(function(){
                 if(MapasCulturais.evaluation){
                     for(var id in MapasCulturais.evaluation.evaluationData){
-                        if(id != 'obs' && id != 'viability'){
+                        if(id != 'obs'){
                             MapasCulturais.evaluation.evaluationData[id] = MapasCulturais.evaluation.evaluationData[id];
                                 $("#"+id).val(MapasCulturais.evaluation.evaluationData[id]);
                         }
@@ -160,7 +159,19 @@
                 }
             },1);
 
-            
-            
+            $scope.getStatusEvaluation = () => {
+                return MapasCulturais.evaluation.resultString;
+            };
+
+            $scope.getStatusSectionLabel = (status) => {
+                if (status == "notevaluate") {
+                    return "Não avaliado";
+                } else if (status == "invalid") {
+                    return "Inválido";
+                } else if (status == "valid") {
+                    return "Válido";
+                }
+                return '';
+            };
         }]);
 })(angular);

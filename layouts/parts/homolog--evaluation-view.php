@@ -1,28 +1,18 @@
 <?php
 use MapasCulturais\i;
 ?>
-<div ng-controller="TechnicalEvaluationMethodFormController" class="technical-evaluation-form">
+<div ng-controller="HomologEvaluationMethodFormController" class="homolog-evaluation-form">
     <div ng-if="!data.empty">
-        <strong><?php i::_e('Pontuações'); ?>:</strong>
-        <section ng-repeat="section in ::data.sections" ng-if="section.categories.indexOf(data.registrationCategory) != -1">
-             {{section.name}}: <strong>{{subtotalSection(section)}}</strong>
+        <?php i::_e('Avaliação'); ?>:<strong> {{ getStatusEvaluation() }}</strong><br><br>
+        <section ng-repeat="section in ::data.sections" class="section {{ evaluation[section.id] }}">
+             {{section.name}}: <strong>{{ getStatusSectionLabel(evaluation[section.id]) }}</strong>
+             <li ng-repeat="cri in ::data.criteria" ng-if="cri.sid == section.id">
+               <label for="{{cri.id}}">{{cri.title}}</label>
+            </li>
+        </section>
+        <section class="section">
+            <strong><?php i::_e('Observação'); ?>:</strong> {{ evaluation.obs }}
         </section>
         <hr>
-        <section class='total'>
-            <?php i::_e('Total'); ?>: <strong>{{total(total)}}</strong><br>
-            <?php i::_e('Máxima'); ?>: <strong>{{max(total)}}</strong>
-        </section>
-        <hr>
-        <label>
-            <strong><?php i::_e('Parecer Técnico') ?>:</strong>
-            <p>{{evaluation['obs']}}</p>
-        </label>
-        <div ng-show="data.enableViability=='true'">
-            <hr>
-            <label>
-                <strong><?php i::_e('Exequibilidade Orçamentária') ?>:</strong>
-                <p>{{viabilityLabel(evaluation['viability'])}}</p>
-            </label>
-        </div>
     </div>
 </div>

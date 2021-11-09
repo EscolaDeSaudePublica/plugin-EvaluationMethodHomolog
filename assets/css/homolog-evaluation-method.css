@@ -110,3 +110,20 @@
 .success-evaluation-note {
     color: #fff;
 }
+
+.section {
+    padding: 10px;
+    margin: 3px;
+}
+
+.valid {
+    background-color: #a9fdcd !important;
+}
+
+.invalid {
+    background-color: #ffd1d1 !important;
+}
+
+.notevaluate {
+    background-color: #ffedc8 !important;
+}

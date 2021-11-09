@@ -44,7 +44,8 @@ $this->applyTemplateHook('evaluationForm.homolog', 'before', $params); ?>
                 <td><?php i::_e('Situação')?></td>
                 <td>
                     <select name="data[{{section.id}}]" id="{{section.id}}" class="form-control">
-                        <option value=""><?php i::_e('Não avaliar')?></option>
+                        <option value="">Seleciona uma opção</option>
+                        <option value="<?php echo STATUS_NOT_EVALUATE ?>"><?php i::_e('Não avaliar')?></option>
                         <option value="<?php echo STATUS_VALID ?>"><?php i::_e('Válida')?></option>
                         <option value="<?php echo STATUS_INVALID ?>"><?php i::_e('Inválida')?></option>
                     </select>

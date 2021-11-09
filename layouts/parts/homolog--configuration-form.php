@@ -17,7 +17,6 @@ use MapasCulturais\i;
                     <button ng-click="addCriterion(section)" class="btn btn-default add" title="<?php i::_e('Adicionar item') ?>"></button>
                 </th>
             </tr>
-
             <tr id="{{cri.id}}" ng-repeat="cri in data.criteria" ng-if="cri.sid == section.id">
                 <td class="criterion-title"><input ng-model="cri.title" placeholder="<?php i::_e('informe o item do regulamento') ?>" ng-change="save({criteria: data.criteria})" ng-model-options='{ debounce: data.debounce }'></td>
                 <td>
@@ -27,6 +26,5 @@ use MapasCulturais\i;
         </table>
     </section>
     <button ng-click="addSection()" class="btn btn-default add"><?php i::_e('Adicionar seção de avaliação homologação') ?></button>
-
 </div>
 
