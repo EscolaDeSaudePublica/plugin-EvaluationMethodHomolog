@@ -29,25 +29,25 @@ $this->applyTemplateHook('evaluationForm.homolog', 'before', $params); ?>
     <div class="alert-evaluation-load" id="alert-evaluation-load-div">
         <span id="successEvaluationNote" class="load-evaluation-note">A avaliação foi salva</span>
     </div>
-    <section ng-repeat="section in ::data.sections" ng-if="section.categories.indexOf(data.registrationCategory) != -1">
+    <section ng-repeat="criterion in ::data.criteria">
         <table>
             <tr>
                 <th colspan="2">
-                    {{section.name}}</br>
+                    {{criterion.name}}</br>
                 </th>
             </tr>
-            <tr ng-repeat="cri in ::data.criteria" ng-if="cri.sid == section.id">
-                <td><label for="{{cri.id}}">{{cri.title}}</label></td>
+            <tr ng-repeat="item in ::data.items" ng-if="item.cid == criterion.id">
+                <td><label for="{{item.id}}">{{item.title}}</label></td>
                 <td></td>
             </tr>
             <tr class="subtotal">
                 <td><?php i::_e('Situação')?></td>
                 <td>
-                    <select name="data[{{section.id}}]" id="{{section.id}}" class="form-control">
+                    <select name="data[{{criterion.id}}]" id="{{criterion.id}}" class="form-control">
                         <option value="">Seleciona uma opção</option>
-                        <option value="<?php echo STATUS_NOT_EVALUATE ?>"><?php i::_e('Não avaliar')?></option>
-                        <option value="<?php echo STATUS_VALID ?>"><?php i::_e('Válida')?></option>
-                        <option value="<?php echo STATUS_INVALID ?>"><?php i::_e('Inválida')?></option>
+                        <option value="<?php echo STATUS_VALID ?>"><?php i::_e('Válido')?></option>
+                        <option value="<?php echo STATUS_INVALID ?>"><?php i::_e('Inválido')?></option>
+                        <option value="<?php echo STATUS_NOT_APPLICABLE ?>"><?php i::_e('Não de aplica')?></option>
                     </select>
                 </td>
             </tr>
@@ -55,7 +55,7 @@ $this->applyTemplateHook('evaluationForm.homolog', 'before', $params); ?>
     </section>
     <hr>
     <label>
-        <?php i::_e('Parecer') ?>
+        <?php i::_e('Justificativa/Observação') ?>
         <textarea name="data[obs]" ng-model="evaluation['obs']"></textarea>
     </label>
     <?php $this->applyTemplateHook('evaluationForm.homolog', 'end', $params); ?>

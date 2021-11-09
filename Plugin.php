@@ -6,7 +6,7 @@ use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
 
-const STATUS_NOT_EVALUATE = 'notevaluate';
+const STATUS_NOT_APPLICABLE = 'notapplicable';
 const STATUS_INVALID = 'invalid';
 const STATUS_VALID = 'valid';
 
@@ -23,11 +23,11 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
     }
 
     public function getName() {
-        return i::__('Avaliação homologação');
+        return i::__('Avaliação de homologação');
     }
 
     public function getDescription() {
-        return i::__('Consiste em avaliação por homologação e validação de critérios.');
+        return i::__('Consiste na avaliação por critérios. Indicando se é válido, inválido ou não se aplica.');
     }
 
     public function cmpValues($value1, $value2){
@@ -42,8 +42,8 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
     }
     
     protected function _register() {
-        $this->registerEvaluationMethodConfigurationMetadata('sections', [
-            'label' => i::__('Seções'),
+        $this->registerEvaluationMethodConfigurationMetadata('criteria', [
+            'label' => i::__('Critérios'),
             'type' => 'json',
             'serialize' => function ($val){
                 return json_encode($val);
@@ -53,8 +53,8 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             }
         ]);
 
-        $this->registerEvaluationMethodConfigurationMetadata('criteria', [
-            'label' => i::__('Critérios'),
+        $this->registerEvaluationMethodConfigurationMetadata('items', [
+            'label' => i::__('Itens'),
             'type' => 'json',
             'serialize' => function ($val){
                 return json_encode($val);
@@ -71,10 +71,10 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         $app->view->enqueueScript('app', 'homolog-evaluation-form', 'js/ng.evaluationMethod.homolog.js', ['entity.module.opportunity']);
 
         $app->view->localizeScript('homologEvaluationMethod', [
-            'sectionNameAlreadyExists' => i::__('Já existe uma seção com o mesmo nome'),
+            'criterionNameAlreadyExists' => i::__('Já existe um critério com o mesmo nome'),
             'changesSaved' => i::__('Alteraçṍes salvas'),
-            'deleteSectionConfirmation' => i::__('Deseja remover a seção? Esta ação não poderá ser desfeita e também removerá todas os critérios desta seção.'),
-            'deleteCriterionConfirmation' => i::__('Deseja remover este item? Esta ação não poderá ser desfeita.')
+            'deleteCriterionConfirmation' => i::__('Deseja remover o critério? Esta ação não poderá ser desfeita e também removerá todos os itens deste critério.'),
+            'deleteItemConfirmation' => i::__('Deseja remover este item? Esta ação não poderá ser desfeita.')
         ]);
         $app->view->jsObject['angularAppDependencies'][] = 'ng.evaluationMethod.homolog';
     }
@@ -100,7 +100,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             $type = $opp->evaluationMethodConfiguration->getDefinition()->slug;
     
             if($type != 'homolog') {
-                $this->errorJson(i::__('Somente para avaliações homologação'), 400);
+                $this->errorJson(i::__('Somente para avaliações de homologação'), 400);
                 die;
             }
 
@@ -206,7 +206,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         }
 
         if($empty){
-            $errors[] = i::__('Campos de validação obrigatórios.');
+            $errors[] = i::__('Campos obrigatórios. Verifique novamente.');
         }
 
         return $errors;
@@ -253,9 +253,9 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
 
     public function valueToString($value) {
         if($value == 1){
-            return i::__('Válida');
+            return i::__('Válido');
         } else if($value == -1){
-            return i::__('Inválida');
+            return i::__('Inválido');
         }
 
         return $value ?: '';

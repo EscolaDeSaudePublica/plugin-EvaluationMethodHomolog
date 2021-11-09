@@ -12,7 +12,7 @@
     cursor: text;
 }
 
-.homolog-evaluation-configuration input.section-name{
+.homolog-evaluation-configuration input.criterion-name{
     font-size: 1.3em;
     font-weight: bold;
     width: 80%;
@@ -29,15 +29,15 @@
     width: 100%;
 }
 
-.homolog-evaluation-configuration .criterion-title {
+.homolog-evaluation-configuration .item-title {
     width: 60%;
 }
 
-.homolog-evaluation-configuration .criterion-num {
+.homolog-evaluation-configuration .item-num {
     width: 10%;
 }
 
-.homolog-evaluation-configuration .criterion-num input{
+.homolog-evaluation-configuration .item-num input{
     font-weight: bold;
     text-align: center;
     font-size: 13px;
@@ -111,7 +111,7 @@
     color: #fff;
 }
 
-.section {
+.criterion {
     padding: 10px;
     margin: 3px;
 }
