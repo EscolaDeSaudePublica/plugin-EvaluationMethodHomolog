@@ -5,19 +5,13 @@ namespace EvaluationMethodHomolog;
 use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\Registration;
 
 const STATUS_NOT_APPLICABLE = 'notapplicable';
 const STATUS_INVALID = 'invalid';
 const STATUS_VALID = 'valid';
 
 class Plugin extends \MapasCulturais\EvaluationMethod {
-    function __construct(array $config = []) {
-        $config += ['step' => '0.1'];
-        parent::__construct($config);
-    }
-
-    private $viability_status;
-
     public function getSlug() {
         return 'homolog';
     }
@@ -35,10 +29,6 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         $value2 = (float) $value2;
         
         return parent::cmpValues($value1, $value2);
-    }
-
-    public function getStep(){
-        return $this->_config['step'];
     }
     
     protected function _register() {
@@ -192,7 +182,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
                 GROUP BY consolidated_result
                 ORDER BY num DESC", ['opportunity' => $opportunity->id]);
             
-            $this->part('documentary--apply-results', ['entity' => $opportunity, 'consolidated_results' => $consolidated_results]);
+            $this->part('homolog--apply-results', ['entity' => $opportunity, 'consolidated_results' => $consolidated_results]);
         });
     }
 
