@@ -73,7 +73,42 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         $app = App::i();
 
         $app->hook('evaluationsReport(homolog).sections', function(Entities\Opportunity $opportunity, &$sections) use($app) {
-           $sections = $sections;
+            
+            $fields = [];
+
+            $fields['registration_number'] = (object) [
+                'label' => i::__('Número de inscrição'),
+                'color' => '#CCCCFF',
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
+                    return $evaluation->registration->number;
+                }
+            ];
+            $fields['project_name'] = (object) [
+                'label' => i::__('Número de inscrição'),
+                'color' => '#CCCCFF',
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
+                    return $evaluation->registration->projectName;
+                }
+            ];
+
+            $fields['category'] = (object) [
+                'label' => i::__('Categoria de inscrição'),
+                'color' => '#CCCCFF',
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
+                    return $evaluation->registration->category;
+                }
+            ];
+            
+
+            $fields['owner'] = (object) [
+                'label' => i::__('Agente Responsável'),
+                'color' => '#CCCCFF',
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
+                    return $evaluation->registration->owner->name;
+                }
+            ];
+
+            $sections = $fields;
         });
 
         $app->hook('POST(opportunity.applyEvaluationsHomolog)', function() {
