@@ -74,41 +74,43 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
 
         $app->hook('evaluationsReport(homolog).sections', function(Entities\Opportunity $opportunity, &$sections) use($app) {
             
-            $fields = [];
+            $cfg = $opportunity->evaluationMethodConfiguration;
 
-            $fields['registration_number'] = (object) [
-                'label' => i::__('Número de inscrição'),
-                'color' => '#CCCCFF',
-                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
-                    return $evaluation->registration->number;
-                }
+            $result = [
+                'registration' => $sections['registration'],
+                'committee' => $sections['committee'],
             ];
-            $fields['project_name'] = (object) [
-                'label' => i::__('Número de inscrição'),
-                'color' => '#CCCCFF',
-                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
-                    return $evaluation->registration->projectName;
-                }
-            ];
-
-            $fields['category'] = (object) [
-                'label' => i::__('Categoria de inscrição'),
-                'color' => '#CCCCFF',
-                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
-                    return $evaluation->registration->category;
-                }
+            
+            $section = (object) [
+                'label' => 'Criterios',
+                'color' => '#FFAAAA',
+                'columns' => []
             ];
             
 
-            $fields['owner'] = (object) [
-                'label' => i::__('Agente Responsável'),
-                'color' => '#CCCCFF',
-                'getValue' => function(Entities\RegistrationEvaluation $evaluation){
-                    return $evaluation->registration->owner->name;
+            foreach($cfg->criteria as $cri){
+                
+                $section->columns[] = (object) [
+                    'label' => $cri->name,
+                    'getValue' => function(Entities\RegistrationEvaluation $evaluation) use($cri) {
+                        return isset($evaluation->evaluationData->{$cri->id}) ? $evaluation->evaluationData->{$cri->id} : '';
+                    }
+                ];
+            }
+
+            $result[] = $section;
+
+            $result['evaluation'] = $sections['evaluation'];
+            
+            // adiciona coluna do parecer técnico
+            $result['evaluation']->columns[] = (object) [
+                'label' => i::__('Parecer Técnico'),
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation) {
+                    return isset($evaluation->evaluationData->obs) ? $evaluation->evaluationData->obs : '';
                 }
             ];
 
-            $sections = $fields;
+            $sections = $result;
         });
 
         $app->hook('POST(opportunity.applyEvaluationsHomolog)', function() {
