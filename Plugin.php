@@ -87,13 +87,18 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
                 'columns' => []
             ];
             
+            $statuses = [
+                "invalid" => "Inválido",
+                "notapplicable" => "Não se aplica",
+                "valid" => "Valido"
+            ];
 
             foreach($cfg->criteria as $cri){
                 
                 $section->columns[] = (object) [
                     'label' => $cri->name,
                     'getValue' => function(Entities\RegistrationEvaluation $evaluation) use($cri) {
-                        return isset($evaluation->evaluationData->{$cri->id}) ? $evaluation->evaluationData->{$cri->id} : '';
+                        return $statuses[$evaluation->evaluationData->{$cri->id}] ?? null;
                     }
                 ];
             }
@@ -107,6 +112,13 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
                 'label' => i::__('Parecer Técnico'),
                 'getValue' => function(Entities\RegistrationEvaluation $evaluation) {
                     return isset($evaluation->evaluationData->obs) ? $evaluation->evaluationData->obs : '';
+                }
+            ];
+
+            $result['registration']->columns[] = (object) [
+                'label' => i::__('Nome do projeto'),
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation) use ($cfg) {
+                    return $cfg->opportunity->ownerEntity->name;
                 }
             ];
 
