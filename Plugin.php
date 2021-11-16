@@ -76,6 +76,8 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             
             $cfg = $opportunity->evaluationMethodConfiguration;
 
+            
+
             $result = [
                 'registration' => $sections['registration'],
                 'committee' => $sections['committee'],
@@ -92,7 +94,6 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
                 "notapplicable" => "Não se aplica",
                 "valid" => "Valido"
             ];
-
             foreach($cfg->criteria as $cri){
                 
                 $section->columns[] = (object) [
@@ -106,22 +107,48 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             $result[] = $section;
 
             $result['evaluation'] = $sections['evaluation'];
+
+            $result['evaluation']->columns[0] = (object) [
+                'label' => i::__('Itens de descumprimento'),
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation) use ($cfg){
+                    $invalids = [];
+                    foreach($cfg->criteria as $cri){
+                        if($evaluation->evaluationData->{$cri->id} == 'invalid'){
+                            foreach($cfg->items as $item){
+                                if($item->cid == $cri->id){
+                                    $invalids[] = $item->title;
+                                }
+                            }
+                        }
+                    }
+                    return implode(', ', $invalids);
+                }
+            ];
             
             // adiciona coluna do parecer técnico
-            $result['evaluation']->columns[] = (object) [
+            $result['evaluation']->columns[1] = (object) [
                 'label' => i::__('Parecer Técnico'),
                 'getValue' => function(Entities\RegistrationEvaluation $evaluation) {
                     return isset($evaluation->evaluationData->obs) ? $evaluation->evaluationData->obs : '';
                 }
             ];
+            
+            $result['registration']->columns[0] = $result['registration']->columns['number'];
+            unset($result['registration']->columns['number']);
 
-            $result['registration']->columns[] = (object) [
+            $result['registration']->columns[1] = (object) [
                 'label' => i::__('Nome do projeto'),
                 'getValue' => function(Entities\RegistrationEvaluation $evaluation) use ($cfg) {
                     return $cfg->opportunity->ownerEntity->name;
                 }
             ];
 
+            $result['registration']->columns[2] = $result['registration']->columns['category'];
+            unset($result['registration']->columns['category']);
+
+            $result['registration']->columns[3] = $result['registration']->columns['owner'];
+            unset($result['registration']->columns['owner']);
+            
             $sections = $result;
         });
 
