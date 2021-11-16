@@ -76,8 +76,6 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             
             $cfg = $opportunity->evaluationMethodConfiguration;
 
-            
-
             $result = [
                 'registration' => $sections['registration'],
                 'committee' => $sections['committee'],
@@ -90,9 +88,9 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             ];
             
             $statuses = [
-                "invalid" => "Inválido",
-                "notapplicable" => "Não se aplica",
-                "valid" => "Valido"
+                STATUS_INVALID => "Inválido",
+                STATUS_NOT_APPLICABLE => "Não se aplica",
+                STATUS_VALID => "Valido"
             ];
             foreach($cfg->criteria as $cri){
                 
@@ -113,7 +111,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
                 'getValue' => function(Entities\RegistrationEvaluation $evaluation) use ($cfg){
                     $invalids = [];
                     foreach($cfg->criteria as $cri){
-                        if($evaluation->evaluationData->{$cri->id} == 'invalid'){
+                        if($evaluation->evaluationData->{$cri->id} == STATUS_INVALID){
                             foreach($cfg->items as $item){
                                 if($item->cid == $cri->id){
                                     $invalids[] = $item->title;
