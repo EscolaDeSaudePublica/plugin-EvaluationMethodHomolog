@@ -97,7 +97,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
                 
                 $section->columns[] = (object) [
                     'label' => $cri->name,
-                    'getValue' => function(Entities\RegistrationEvaluation $evaluation) use($cri) {
+                    'getValue' => function(Entities\RegistrationEvaluation $evaluation) use($cri , $statuses) {
                         return $statuses[$evaluation->evaluationData->{$cri->id}] ?? null;
                     }
                 ];
