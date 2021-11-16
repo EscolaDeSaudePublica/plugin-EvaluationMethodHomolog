@@ -135,9 +135,9 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             unset($result['registration']->columns['number']);
 
             $result['registration']->columns[1] = (object) [
-                'label' => i::__('Nome do projeto'),
+                'label' => i::__('Projeto/Oportunidade'),
                 'getValue' => function(Entities\RegistrationEvaluation $evaluation) use ($cfg) {
-                    return $cfg->opportunity->ownerEntity->name;
+                    return $cfg->opportunity->ownerEntity->name.'/'.$cfg->opportunity->name;
                 }
             ];
 
