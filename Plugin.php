@@ -73,7 +73,83 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         $app = App::i();
 
         $app->hook('evaluationsReport(homolog).sections', function(Entities\Opportunity $opportunity, &$sections) use($app) {
-           $sections = $sections;
+            
+            $cfg = $opportunity->evaluationMethodConfiguration;
+
+            
+
+            $result = [
+                'registration' => $sections['registration'],
+                'committee' => $sections['committee'],
+            ];
+            
+            $section = (object) [
+                'label' => 'Criterios',
+                'color' => '#FFAAAA',
+                'columns' => []
+            ];
+            
+            $statuses = [
+                "invalid" => "Inválido",
+                "notapplicable" => "Não se aplica",
+                "valid" => "Valido"
+            ];
+            foreach($cfg->criteria as $cri){
+                
+                $section->columns[] = (object) [
+                    'label' => $cri->name,
+                    'getValue' => function(Entities\RegistrationEvaluation $evaluation) use($cri , $statuses) {
+                        return $statuses[$evaluation->evaluationData->{$cri->id}] ?? null;
+                    }
+                ];
+            }
+
+            $result[] = $section;
+
+            $result['evaluation'] = $sections['evaluation'];
+
+            $result['evaluation']->columns[0] = (object) [
+                'label' => i::__('Itens de descumprimento'),
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation) use ($cfg){
+                    $invalids = [];
+                    foreach($cfg->criteria as $cri){
+                        if($evaluation->evaluationData->{$cri->id} == 'invalid'){
+                            foreach($cfg->items as $item){
+                                if($item->cid == $cri->id){
+                                    $invalids[] = $item->title;
+                                }
+                            }
+                        }
+                    }
+                    return implode(', ', $invalids);
+                }
+            ];
+            
+            // adiciona coluna do parecer técnico
+            $result['evaluation']->columns[1] = (object) [
+                'label' => i::__('Parecer Técnico'),
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation) {
+                    return isset($evaluation->evaluationData->obs) ? $evaluation->evaluationData->obs : '';
+                }
+            ];
+            
+            $result['registration']->columns[0] = $result['registration']->columns['number'];
+            unset($result['registration']->columns['number']);
+
+            $result['registration']->columns[1] = (object) [
+                'label' => i::__('Nome do projeto'),
+                'getValue' => function(Entities\RegistrationEvaluation $evaluation) use ($cfg) {
+                    return $cfg->opportunity->ownerEntity->name;
+                }
+            ];
+
+            $result['registration']->columns[2] = $result['registration']->columns['category'];
+            unset($result['registration']->columns['category']);
+
+            $result['registration']->columns[3] = $result['registration']->columns['owner'];
+            unset($result['registration']->columns['owner']);
+            
+            $sections = $result;
         });
 
         $app->hook('POST(opportunity.applyEvaluationsHomolog)', function() {
